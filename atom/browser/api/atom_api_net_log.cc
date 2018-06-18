@@ -7,6 +7,7 @@
 #include "atom/common/native_mate_converters/callback.h"
 #include "atom/common/native_mate_converters/file_path_converter.h"
 #include "base/callback.h"
+#include "base/strings/utf_string_conversions.h"
 #include "content/public/common/content_switches.h"
 #include "native_mate/dictionary.h"
 #include "native_mate/handle.h"
@@ -44,8 +45,12 @@ bool NetLog::IsCurrentlyLogging() {
   return net_log_->IsDynamicLogging();
 }
 
-std::string NetLog::GetCurrentlyLoggingPath() {
+base::string16 NetLog::GetCurrentlyLoggingPath() {
+#if defined(OS_POSIX)
+  return base::UTF8ToUTF16(net_log_->GetDynamicLoggingPath().value());
+#elif defined(OS_WIN)
   return net_log_->GetDynamicLoggingPath().value();
+#endif  // OS_WIN
 }
 
 void NetLog::StopLogging(mate::Arguments* args) {
